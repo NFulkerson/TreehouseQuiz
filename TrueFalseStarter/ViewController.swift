@@ -13,11 +13,12 @@ import AudioToolbox
 class ViewController: UIViewController {
     
     let questionsPerRound = 4
+    let soundManager = SoundManager()
     var questionsAsked = 0
     var correctQuestions = 0
     var indexOfSelectedQuestion: Int = 0
     
-    var gameSound: SystemSoundID = 0
+    
     
     let trivia: [[String : String]] = [
         ["Question": "Only female koalas can whistle", "Answer": "False"],
@@ -34,9 +35,9 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadGameStartSound()
+        soundManager.loadSounds()
         // Start game
-        playGameStartSound()
+        soundManager.playGameSound(Sound.Start)
         displayQuestion()
     }
 
@@ -73,8 +74,10 @@ class ViewController: UIViewController {
         
         if (sender === trueButton &&  correctAnswer == "True") || (sender === falseButton && correctAnswer == "False") {
             correctQuestions += 1
+            soundManager.playGameSound(Sound.Success)
             questionField.text = "Correct!"
         } else {
+            soundManager.playGameSound(Sound.Failure)
             questionField.text = "Sorry, wrong answer!"
         }
         
@@ -101,8 +104,6 @@ class ViewController: UIViewController {
         nextRound()
     }
     
-
-    
     // MARK: Helper Methods
     
     func loadNextRoundWithDelay(seconds seconds: Int) {
@@ -117,14 +118,6 @@ class ViewController: UIViewController {
         }
     }
     
-    func loadGameStartSound() {
-        let pathToSoundFile = NSBundle.mainBundle().pathForResource("GameSound", ofType: "wav")
-        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL, &gameSound)
-    }
     
-    func playGameStartSound() {
-        AudioServicesPlaySystemSound(gameSound)
-    }
 }
 
