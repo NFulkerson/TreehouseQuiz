@@ -45,8 +45,8 @@ class ViewController: UIViewController {
     
     func displayQuestion() {
         indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextIntWithUpperBound(trivia.questions.count)
-        let questionDictionary = trivia.questions[indexOfSelectedQuestion]
-        questionField.text = questionDictionary["Question"]
+        let question = trivia.questions[indexOfSelectedQuestion]
+        questionField.text = question.text
         playAgainButton.hidden = true
     }
     
@@ -66,8 +66,8 @@ class ViewController: UIViewController {
         // Increment the questions asked counter
         questionsAsked += 1
         
-        let selectedQuestionDict = trivia.questions[indexOfSelectedQuestion]
-        let correctAnswer = selectedQuestionDict["Answer"]
+        let question = trivia.questions[indexOfSelectedQuestion]
+        let correctAnswer = question.correctAnswer
         
         if (sender === trueButton &&  correctAnswer == "True") || (sender === falseButton && correctAnswer == "False") {
             correctQuestions += 1
