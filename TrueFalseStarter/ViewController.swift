@@ -47,7 +47,7 @@ class ViewController: UIViewController {
     }
     
     func displayQuestion() {
-        indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextIntWithUpperBound(trivia.questions.count)
+        indexOfSelectedQuestion = getRandomNumFor(trivia.questions.count)
         setUpChoices(indexOfSelectedQuestion)
         let question = trivia.questions[indexOfSelectedQuestion]
         questionField.text = question.text
@@ -59,17 +59,15 @@ class ViewController: UIViewController {
         let question = trivia.questions[questionIndex]
         var choices = question.choices
         // reset hiding of buttons.
-        for button in questionButtons {
-            button.hidden = false
-        }
+        showAllChoices()
         if (choices.count == 2) {
             choiceA.setTitle("True", forState: .Normal)
             choiceB.setTitle("False", forState: .Normal)
             choiceC.hidden = true
             choiceD.hidden = true
         } else if (choices.count == 3) {
-            let choice1 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
-            let choice2 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
+            let choice1 = choices.removeAtIndex(getRandomNumFor(choices.count))
+            let choice2 = choices.removeAtIndex(getRandomNumFor(choices.count))
             let choice3 = choices.popLast()
             
             choiceA.setTitle(choice1, forState: .Normal)
@@ -77,15 +75,10 @@ class ViewController: UIViewController {
             choiceC.setTitle(choice3, forState: .Normal)
             choiceD.hidden = true
         } else if (choices.count == 4) {
-            let choice1 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
-            let choice2 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
-            let choice3 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
-            let choice4 = choices.popLast()
-            
-            choiceA.setTitle(choice1, forState: .Normal)
-            choiceB.setTitle(choice2, forState: .Normal)
-            choiceC.setTitle(choice3, forState: .Normal)
-            choiceD.setTitle(choice4, forState: .Normal)
+            for button in questionButtons {
+                let buttonText = choices.removeAtIndex(getRandomNumFor(choices.count))
+                button.setTitle(buttonText, forState: .Normal)
+            }
         }
     }
     
@@ -106,8 +99,8 @@ class ViewController: UIViewController {
         
         let question = trivia.questions[indexOfSelectedQuestion]
         let correctAnswer = question.correctAnswer
-        
-        if (sender === choiceA &&  correctAnswer == "True") || (sender === choiceB && correctAnswer == "False") {
+    
+        if (sender.titleLabel?.text == correctAnswer) {
             correctQuestions += 1
             success.play()
             questionField.text = "Correct!"
