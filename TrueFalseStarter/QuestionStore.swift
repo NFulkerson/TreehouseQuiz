@@ -22,7 +22,7 @@ struct Trivia {
 struct Question {
     var text: String
     var choices: [String]
-    // assumes first choice will be correct answer.
+    // assumes first choice in array will be correct answer.
     // This saves us from having to define choices and then repeat ourselves
     // by defining an answer, as the repetition leaves us open to mistakes/typos.
     // May be another way to do this without repetition.

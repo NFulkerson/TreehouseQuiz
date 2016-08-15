@@ -20,8 +20,11 @@ class ViewController: UIViewController {
     let trivia = Trivia()
     
     @IBOutlet weak var questionField: UILabel!
-    @IBOutlet weak var trueButton: UIButton!
-    @IBOutlet weak var falseButton: UIButton!
+    @IBOutlet weak var choiceA: UIButton!
+    @IBOutlet weak var choiceB: UIButton!
+    @IBOutlet weak var choiceC: UIButton!
+    @IBOutlet weak var choiceD: UIButton!
+    
     @IBOutlet weak var playAgainButton: UIButton!
     
     var gameSound = Sound(soundID: 0, name: "GameSound")
@@ -45,15 +48,50 @@ class ViewController: UIViewController {
     
     func displayQuestion() {
         indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextIntWithUpperBound(trivia.questions.count)
+        setUpChoices(indexOfSelectedQuestion)
         let question = trivia.questions[indexOfSelectedQuestion]
         questionField.text = question.text
         playAgainButton.hidden = true
     }
     
+    func setUpChoices(questionIndex: Int) {
+        let questionButtons = [choiceA,choiceB,choiceC,choiceD]
+        let question = trivia.questions[questionIndex]
+        var choices = question.choices
+        // reset hiding of buttons.
+        for button in questionButtons {
+            button.hidden = false
+        }
+        if (choices.count == 2) {
+            choiceA.setTitle("True", forState: .Normal)
+            choiceB.setTitle("False", forState: .Normal)
+            choiceC.hidden = true
+            choiceD.hidden = true
+        } else if (choices.count == 3) {
+            let choice1 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
+            let choice2 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
+            let choice3 = choices.popLast()
+            
+            choiceA.setTitle(choice1, forState: .Normal)
+            choiceB.setTitle(choice2, forState: .Normal)
+            choiceC.setTitle(choice3, forState: .Normal)
+            choiceD.hidden = true
+        } else if (choices.count == 4) {
+            let choice1 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
+            let choice2 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
+            let choice3 = choices.removeAtIndex(GKRandomSource.sharedRandom().nextIntWithUpperBound(choices.count))
+            let choice4 = choices.popLast()
+            
+            choiceA.setTitle(choice1, forState: .Normal)
+            choiceB.setTitle(choice2, forState: .Normal)
+            choiceC.setTitle(choice3, forState: .Normal)
+            choiceD.setTitle(choice4, forState: .Normal)
+        }
+    }
+    
     func displayScore() {
         // Hide the answer buttons
-        trueButton.hidden = true
-        falseButton.hidden = true
+        hideChoices()
         
         // Display play again button
         playAgainButton.hidden = false
@@ -69,7 +107,7 @@ class ViewController: UIViewController {
         let question = trivia.questions[indexOfSelectedQuestion]
         let correctAnswer = question.correctAnswer
         
-        if (sender === trueButton &&  correctAnswer == "True") || (sender === falseButton && correctAnswer == "False") {
+        if (sender === choiceA &&  correctAnswer == "True") || (sender === choiceB && correctAnswer == "False") {
             correctQuestions += 1
             success.play()
             questionField.text = "Correct!"
@@ -93,8 +131,7 @@ class ViewController: UIViewController {
     
     @IBAction func playAgain() {
         // Show the answer buttons
-        trueButton.hidden = false
-        falseButton.hidden = false
+        showAllChoices()
         
         questionsAsked = 0
         correctQuestions = 0
@@ -102,6 +139,24 @@ class ViewController: UIViewController {
     }
     
     // MARK: Helper Methods
+    
+    func hideChoices() {
+        let choices = [choiceA,choiceB,choiceC,choiceD]
+        for button in choices {
+            button.hidden = true
+        }
+    }
+    
+    func showAllChoices() {
+        let choices = [choiceA,choiceB,choiceC,choiceD]
+        for button in choices {
+            button.hidden = false
+        }
+    }
+    // little less verbose than the contained function
+    func getRandomNumFor(count: Int) -> Int {
+        return GKRandomSource.sharedRandom().nextIntWithUpperBound(count)
+    }
     
     func loadNextRoundWithDelay(seconds seconds: Int) {
         // Converts a delay in seconds to nanoseconds as signed 64 bit integer
