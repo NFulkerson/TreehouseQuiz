@@ -13,12 +13,9 @@ import AudioToolbox
 class ViewController: UIViewController {
     
     let questionsPerRound = 4
-    let soundManager = SoundManager()
     var questionsAsked = 0
     var correctQuestions = 0
     var indexOfSelectedQuestion: Int = 0
-    
-    
     
     let trivia: [[String : String]] = [
         ["Question": "Only female koalas can whistle", "Answer": "False"],
@@ -32,12 +29,17 @@ class ViewController: UIViewController {
     @IBOutlet weak var falseButton: UIButton!
     @IBOutlet weak var playAgainButton: UIButton!
     
+    var gameSound = Sound(soundID: 0, name: "GameSound")
+    var success = Sound(soundID: 1, name: "success")
+    var failure = Sound(soundID: 2, name: "failure")
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        soundManager.loadSounds()
+        gameSound.prepareSound()
+        success.prepareSound()
+        failure.prepareSound()
         // Start game
-        soundManager.playGameSound(Sound.Start)
+        gameSound.play()
         displayQuestion()
     }
 
@@ -74,10 +76,10 @@ class ViewController: UIViewController {
         
         if (sender === trueButton &&  correctAnswer == "True") || (sender === falseButton && correctAnswer == "False") {
             correctQuestions += 1
-            soundManager.playGameSound(Sound.Success)
+            success.play()
             questionField.text = "Correct!"
         } else {
-            soundManager.playGameSound(Sound.Failure)
+            failure.play()
             questionField.text = "Sorry, wrong answer!"
         }
         
