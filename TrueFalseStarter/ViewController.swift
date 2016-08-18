@@ -15,7 +15,7 @@ import AudioToolbox
 
 class ViewController: UIViewController {
     
-    let questionsPerRound = 4
+    let questionsPerRound = 6
     var questionsAsked = 0
     var correctQuestions = 0
     var indexOfSelectedQuestion: Int = 0
@@ -55,6 +55,13 @@ class ViewController: UIViewController {
     
     func displayQuestion() {
         indexOfSelectedQuestion = getRandomNumFor(trivia.questions.count)
+        if alreadyAskedQuestion(indexOfSelectedQuestion) {
+            while alreadyAskedQuestion(indexOfSelectedQuestion) {
+                indexOfSelectedQuestion = getRandomNumFor(trivia.questions.count)
+            }
+        }
+        askedIndexes.append(indexOfSelectedQuestion)
+        print("Questions asked: \(askedIndexes)")
         setUpChoices(indexOfSelectedQuestion)
         let question = trivia.questions[indexOfSelectedQuestion]
         questionField.text = question.text
@@ -74,6 +81,10 @@ class ViewController: UIViewController {
             choiceC.hidden = true
             choiceD.hidden = true
         } else if (choices.count == 3) {
+            // Will choose and assign random answers to each button so that the order
+            // is not always the same. This is especially necessary since
+            // the Trivia object expects the first item in the array to be the correct one.
+            // If we didn't randomly assign answers, the answer would always be 'A'.
             let choice1 = choices.removeAtIndex(getRandomNumFor(choices.count))
             let choice2 = choices.removeAtIndex(getRandomNumFor(choices.count))
             let choice3 = choices.popLast()
@@ -83,6 +94,8 @@ class ViewController: UIViewController {
             choiceC.setTitle(choice3, forState: .Normal)
             choiceD.hidden = true
         } else if (choices.count == 4) {
+            // A more concise way of doing the same thing as above.
+            // I could probably do the very same for a 3-count question by using ranges or sliced indexes.
             for button in questionButtons {
                 let buttonText = choices.removeAtIndex(getRandomNumFor(choices.count))
                 button.setTitle(buttonText, forState: .Normal)
@@ -93,7 +106,7 @@ class ViewController: UIViewController {
     func displayScore() {
         // Hide the answer buttons
         hideChoices()
-        
+        print("Questions asked: \(askedIndexes)")
         // Display play again button
         playAgainButton.hidden = false
         
@@ -136,7 +149,7 @@ class ViewController: UIViewController {
     @IBAction func playAgain() {
         // Show the answer buttons
         showAllChoices()
-        
+        askedIndexes = []
         questionsAsked = 0
         correctQuestions = 0
         nextRound()
@@ -171,16 +184,8 @@ class ViewController: UIViewController {
         return GKRandomSource.sharedRandom().nextIntWithUpperBound(count)
     }
     
-    func loadNextRoundWithDelay(seconds seconds: Int) {
-        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
-        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay)
-        
-        // Executes the nextRound method at the dispatch time on the main queue
-        dispatch_after(dispatchTime, dispatch_get_main_queue()) {
-            self.nextRound()
-        }
+    func alreadyAskedQuestion(questionIndex: Int) -> Bool {
+        return askedIndexes.contains(questionIndex)
     }
     
     func highlightAnswer() {
@@ -195,6 +200,19 @@ class ViewController: UIViewController {
             }
         }
     }
+    
+    func loadNextRoundWithDelay(seconds seconds: Int) {
+        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
+        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
+        // Calculates a time value to execute the method given current time and delay
+        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay)
+        
+        // Executes the nextRound method at the dispatch time on the main queue
+        dispatch_after(dispatchTime, dispatch_get_main_queue()) {
+            self.nextRound()
+        }
+    }
+    
     
 }
 
