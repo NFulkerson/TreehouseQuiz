@@ -113,7 +113,8 @@ class ViewController: UIViewController {
         questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
         
     }
-    // TODO: Limit touches to 1, or disable the buttons in some way to prevent breaking the game.
+    // In its default state, this method could be fired multiple times during the delay
+    // We disable the buttons in the highlightAnswer method so that it can't be called more than once
     @IBAction func checkAnswer(sender: UIButton) {
         highlightAnswer()
         
@@ -136,7 +137,8 @@ class ViewController: UIViewController {
     }
     
     func nextRound() {
-        // Checking equality here can lead to an endless loop of questions.
+        // Checking equality here can lead to an endless loop of questions, if you
+        // abuse the checkAnswer function.
         if questionsAsked >= questionsPerRound {
             // Game is over
             displayScore()
